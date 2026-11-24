@@ -1,6 +1,8 @@
-# Crextio — Contextual Dashboard
+# Crextio - Contextual Dashboard
 
-![Crextio dashboard preview](docs/dashboard-preview.png)
+<img width="1100" height="1085" alt="_C__Users_Wang%20Lin&#39;s%20Heart_Downloads_index html (1)" src="https://github.com/user-attachments/assets/220be231-3c0b-4db4-b98b-8bda6c2dec22" />
+<img width="1100" height="1085" alt="_C__Users_Wang%20Lin&#39;s%20Heart_Downloads_index html" src="https://github.com/user-attachments/assets/404341cf-ff98-4ce7-912b-5a04a5bd19c8" />
+
 
 A responsive, modern dashboard UI with a warm cream-and-charcoal color palette, inspired by the Crextio dashboard reference. It includes interactive dashboard sections, contextual filters, task management, a performance chart, search, and a persistent light/dark theme.
 
