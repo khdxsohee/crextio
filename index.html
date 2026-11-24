@@ -3,158 +3,401 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Context — Dashboard</title>
+  <title>Crextio — Context Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     :root {
-      --bg: #f5f6fa;
-      --surface: #fff;
-      --text: #202235;
-      --muted: #85899d;
-      --line: #eceef3;
-      --accent: #7057f5;
-      --accent-soft: #f0edff;
-      --green: #25a879;
-      --red: #e46b7a;
-      --shadow: 0 8px 28px rgba(40, 42, 70, .055);
+      --bg: #e6e6e1;
+      --surface: #f8f7f0;
+      --surface-2: #efeee7;
+      --text: #292a28;
+      --muted: #85847b;
+      --line: #e4e2d8;
+      --accent: #d5c759;
+      --accent-soft: #f1edcf;
+      --green: #728a6b;
+      --red: #bd776e;
+      --shadow: 0 10px 30px rgba(45,45,35,.07);
     }
+
     body.dark {
-      --bg: #151622;
-      --surface: #202131;
-      --text: #f1f1f7;
-      --muted: #a3a5b7;
-      --line: #323347;
-      --accent-soft: #302b4e;
-      --shadow: 0 8px 28px rgba(0,0,0,.18);
+      --bg: #232420;
+      --surface: #30312d;
+      --surface-2: #393a35;
+      --text: #f2f0e7;
+      --muted: #aaa99e;
+      --line: #484941;
+      --accent: #d5c759;
+      --accent-soft: #49452b;
+      --green: #91a984;
+      --red: #cf8277;
+      --shadow: 0 10px 30px rgba(0,0,0,.2);
     }
+
     * { box-sizing: border-box; }
+
     body {
-      margin: 0; background: var(--bg); color: var(--text);
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
       font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
       transition: background .2s, color .2s;
     }
+
     button, input, select { font: inherit; }
     button { cursor: pointer; }
-    .app { min-height: 100vh; }
+
     .sidebar {
-      position: fixed; inset: 0 auto 0 0; width: 245px; padding: 25px 16px;
-      background: var(--surface); border-right: 1px solid var(--line);
-      display: flex; flex-direction: column; z-index: 5;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      width: 238px;
+      padding: 24px 15px;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      transition: transform .2s;
     }
-    .brand { display:flex; align-items:center; gap:10px; font-size:20px; font-weight:750; padding: 0 10px 30px; }
-    .brand-mark { width:32px;height:32px;border-radius:11px;background:var(--accent);color:white;display:grid;place-items:center; }
-    .nav-label { color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1.2px;padding:10px 12px 8px; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px 28px;
+      font-size: 19px;
+      font-weight: 750;
+      letter-spacing: -.5px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      place-items: center;
+      border-radius: 10px;
+      background: #30312d;
+      color: #f8f7f0;
+    }
+
+    .nav-label {
+      padding: 10px 12px 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+    }
+
     .nav-link {
-      border:0;background:transparent;color:var(--muted);text-align:left;width:100%;
-      padding:11px 12px;border-radius:10px;margin:2px 0;display:flex;gap:12px;align-items:center;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin: 2px 0;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      transition: .15s;
     }
-    .nav-link:hover,.nav-link.active { background:var(--accent-soft);color:var(--accent); }
-    .nav-icon { width:18px;text-align:center;font-size:16px; }
-    .nav-count { margin-left:auto;font-size:11px;background:var(--bg);padding:2px 7px;border-radius:20px; }
-    .workspace { margin-top:auto;padding:14px 12px;border:1px solid var(--line);border-radius:13px; }
-    .workspace small { color:var(--muted);display:block; }
-    .workspace strong { display:block;margin:4px 0 10px; }
-    .progress { height:6px;background:var(--line);border-radius:8px;overflow:hidden; }
-    .progress span { display:block;width:68%;height:100%;background:var(--accent);border-radius:8px; }
-    main { margin-left:245px;padding:26px 34px 45px;max-width:1600px; }
-    .topbar { display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:30px; }
-    .crumb { color:var(--muted);font-size:13px; }
-    .top-actions { display:flex;align-items:center;gap:10px; }
-    .search { width:min(260px, 35vw);padding:10px 13px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);outline:none; }
-    .icon-btn { border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:9px 11px; }
-    .avatar { width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#ffe2ca;color:#925727;font-weight:700; }
-    .heading { display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:22px; }
-    h1 { font-size:27px;line-height:1.2;margin:0 0 5px;letter-spacing:-.7px; }
-    .sub { color:var(--muted); }
-    .date-select { border:1px solid var(--line);background:var(--surface);color:var(--text);padding:10px 12px;border-radius:9px; }
-    .context-row { display:flex;gap:9px;overflow:auto;margin:0 0 22px;padding-bottom:2px; }
-    .context-chip { white-space:nowrap;border:1px solid var(--line);border-radius:30px;background:var(--surface);color:var(--muted);padding:8px 14px; }
-    .context-chip.active { color:var(--accent);border-color:var(--accent);background:var(--accent-soft); }
-    .grid { display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:17px; }
-    .card { background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:19px;box-shadow:var(--shadow);min-width:0; }
-    .metric { grid-column:span 3; }
-    .card-head { display:flex;align-items:center;justify-content:space-between;gap:10px; }
-    .metric-label { color:var(--muted);font-size:13px; }
-    .metric-icon { width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent); }
-    .metric-value { font-size:27px;font-weight:750;letter-spacing:-.7px;margin:15px 0 3px; }
-    .metric-foot { color:var(--muted);font-size:12px; }
-    .up { color:var(--green);font-weight:650; }
-    .down { color:var(--red);font-weight:650; }
-    .chart-card { grid-column:span 8; }
-    .activity-card { grid-column:span 4; }
-    .wide-card { grid-column:span 7; }
-    .side-card { grid-column:span 5; }
-    .card-title { margin:0;font-size:15px;font-weight:700; }
-    .card-caption { color:var(--muted);font-size:12px;margin-top:3px; }
-    .chart-wrap { height:245px;margin-top:16px; }
-    .activity-list,.task-list,.project-list { margin-top:15px; }
-    .activity,.task,.project { display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--line); }
-    .activity:last-child,.task:last-child,.project:last-child { border-bottom:0; }
-    .dot { width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none; }
-    .activity-text,.task-text { flex:1;min-width:0; }
-    .activity-text strong,.task-text strong { display:block;font-size:13px;font-weight:600; }
-    .activity-text small,.task-text small { color:var(--muted);font-size:11px; }
-    .task input { accent-color:var(--accent);width:16px;height:16px; }
-    .task.done strong { text-decoration:line-through;color:var(--muted); }
-    .tag { font-size:10px;padding:4px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent);white-space:nowrap; }
-    .tag.green { color:var(--green);background:rgba(37,168,121,.11); }
-    .tag.orange { color:#c47b24;background:rgba(230,164,68,.14); }
-    .project-icon { width:36px;height:36px;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center; }
-    .project-info { flex:1;min-width:0; }
-    .project-info strong { display:block;font-size:13px; }
-    .project-info small { color:var(--muted); }
-    .mini-progress { width:85px;height:6px;background:var(--line);border-radius:8px;overflow:hidden; }
-    .mini-progress span { height:100%;display:block;background:var(--accent);border-radius:8px; }
-    .section-title { margin:25px 0 14px;font-size:16px; }
-    .empty { color:var(--muted);text-align:center;padding:24px 4px; }
-    .toast { position:fixed;right:22px;bottom:22px;background:#25243a;color:white;padding:12px 17px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:10; }
-    .toast.show { opacity:1;transform:translateY(0); }
-    .mobile-menu { display:none; }
-    @media(max-width:1050px) {
-      .sidebar { width:205px; } main { margin-left:205px;padding:24px; }
-      .metric { grid-column:span 6; } .chart-card,.activity-card { grid-column:span 12; }
-      .wide-card,.side-card { grid-column:span 12; }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: var(--accent-soft);
+      color: var(--text);
     }
-    @media(max-width:650px) {
-      .sidebar { width:250px;transform:translateX(-100%);transition:.2s;box-shadow:var(--shadow); }
-      .sidebar.open { transform:translateX(0); }
-      main { margin:0;padding:18px 15px 35px; }
-      .mobile-menu { display:inline-block; }
-      .topbar { margin-bottom:23px; }
-      .search { width:145px; }
-      .heading { align-items:flex-start;flex-direction:column; }
-      h1 { font-size:23px; }
-      .metric { grid-column:span 6;padding:15px; }
-      .metric-value { font-size:22px; }
-      .chart-wrap { height:210px; }
-      .mini-progress { width:55px; }
+
+    .nav-icon { width: 18px; text-align: center; }
+    .nav-count {
+      margin-left: auto;
+      padding: 2px 7px;
+      border-radius: 20px;
+      background: var(--surface-2);
+      font-size: 11px;
+    }
+
+    .workspace {
+      margin-top: auto;
+      padding: 14px 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+    }
+
+    .workspace small { color: var(--muted); }
+    .workspace strong { display: block; margin: 4px 0 10px; }
+    .progress, .mini-progress {
+      height: 6px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: var(--line);
+    }
+    .progress span, .mini-progress span {
+      display: block;
+      height: 100%;
+      border-radius: 8px;
+      background: var(--accent);
+    }
+    .progress span { width: 68%; }
+
+    main {
+      max-width: 1600px;
+      margin-left: 238px;
+      padding: 25px 32px 45px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 28px;
+    }
+
+    .crumb { color: var(--muted); font-size: 13px; }
+    .top-actions { display: flex; align-items: center; gap: 9px; }
+
+    .search, .date-select, .icon-btn {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .search {
+      width: min(250px, 34vw);
+      padding: 9px 12px;
+      outline: none;
+    }
+
+    .search:focus, .date-select:focus {
+      border-color: var(--accent);
+      outline: 2px solid var(--accent-soft);
+    }
+
+    .date-select { padding: 9px 12px; }
+    .icon-btn { padding: 8px 11px; }
+    .avatar {
+      display: grid;
+      width: 35px;
+      height: 35px;
+      place-items: center;
+      border-radius: 50%;
+      background: #e8d7be;
+      color: #775939;
+      font-weight: 700;
+    }
+
+    .mobile-menu { display: none; }
+
+    .heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 5px;
+      font-size: 27px;
+      line-height: 1.2;
+      letter-spacing: -.7px;
+    }
+
+    .sub, .card-caption { color: var(--muted); }
+    .context-row {
+      display: flex;
+      gap: 8px;
+      overflow: auto;
+      margin-bottom: 20px;
+      padding-bottom: 2px;
+    }
+
+    .context-chip {
+      white-space: nowrap;
+      padding: 7px 13px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: var(--surface);
+      color: var(--muted);
+    }
+
+    .context-chip:hover, .context-chip.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--text);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      animation: appear .22s ease;
+    }
+
+    @keyframes appear {
+      from { opacity: .5; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .metric { grid-column: span 3; }
+    .chart-card { grid-column: span 8; }
+    .activity-card { grid-column: span 4; }
+    .wide-card { grid-column: span 7; }
+    .side-card { grid-column: span 5; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .metric-label { color: var(--muted); font-size: 13px; }
+    .metric-icon, .project-icon {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--text);
+    }
+
+    .metric-value {
+      margin: 13px 0 2px;
+      font-size: 27px;
+      font-weight: 750;
+      letter-spacing: -.7px;
+    }
+
+    .metric-foot { color: var(--muted); font-size: 12px; }
+    .up { color: var(--green); font-weight: 650; }
+    .down { color: var(--red); font-weight: 650; }
+    .card-title { margin: 0; font-size: 15px; font-weight: 700; }
+    .card-caption { margin-top: 3px; font-size: 12px; }
+    .chart-wrap { height: 245px; margin-top: 15px; }
+
+    .tag {
+      padding: 4px 8px;
+      border-radius: 20px;
+      background: var(--accent-soft);
+      color: #625b26;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .tag.green { background: rgba(114,138,107,.14); color: var(--green); }
+    .tag.orange { background: rgba(207,157,74,.16); color: #a27527; }
+
+    .activity-list, .task-list, .project-list { margin-top: 13px; }
+    .activity, .task, .project {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .activity:last-child, .task:last-child, .project:last-child { border-bottom: 0; }
+    .dot { width: 9px; height: 9px; flex: none; border-radius: 50%; background: var(--accent); }
+    .activity-text, .task-text { flex: 1; min-width: 0; }
+    .activity-text strong, .task-text strong, .project-info strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .activity-text small, .task-text small, .project-info small {
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .task input { width: 16px; height: 16px; accent-color: #a99e3e; }
+    .task.done strong { color: var(--muted); text-decoration: line-through; }
+    .project-icon { width: 36px; height: 36px; flex: none; }
+    .project-info { flex: 1; min-width: 0; }
+    .mini-progress { width: 75px; flex: none; }
+    .empty { padding: 18px 4px; color: var(--muted); text-align: center; }
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 10;
+      padding: 11px 16px;
+      border-radius: 10px;
+      background: #30312d;
+      color: white;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: .2s;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1050px) {
+      .sidebar { width: 205px; }
+      main { margin-left: 205px; padding: 22px; }
+      .metric { grid-column: span 6; }
+      .chart-card, .activity-card, .wide-card, .side-card { grid-column: span 12; }
+    }
+
+    @media (max-width: 650px) {
+      .sidebar { width: 245px; transform: translateX(-100%); box-shadow: var(--shadow); }
+      .sidebar.open { transform: translateX(0); }
+      main { margin: 0; padding: 17px 14px 35px; }
+      .mobile-menu { display: inline-block; }
+      .topbar { margin-bottom: 22px; }
+      .search { width: 135px; }
+      .heading { align-items: flex-start; flex-direction: column; }
+      h1 { font-size: 23px; }
+      .metric { padding: 14px; }
+      .metric-value { font-size: 22px; }
+      .chart-wrap { height: 210px; }
+      .mini-progress { width: 55px; }
     }
   </style>
 </head>
+
 <body>
-<div class="app">
   <aside class="sidebar" id="sidebar">
-    <div class="brand"><span class="brand-mark">✦</span> context</div>
+    <div class="brand"><span class="brand-mark">✦</span> Crextio</div>
+
     <div class="nav-label">WORKSPACE</div>
     <button class="nav-link active" data-section="Overview"><span class="nav-icon">▦</span>Overview</button>
     <button class="nav-link" data-section="Analytics"><span class="nav-icon">⌁</span>Analytics</button>
     <button class="nav-link" data-section="Projects"><span class="nav-icon">▣</span>Projects <span class="nav-count">6</span></button>
-    <button class="nav-link" data-section="Tasks"><span class="nav-icon">☑</span>Tasks <span class="nav-count">4</span></button>
+    <button class="nav-link" data-section="Tasks"><span class="nav-icon">☑</span>Tasks <span class="nav-count" id="taskBadge">2</span></button>
     <button class="nav-link" data-section="Team"><span class="nav-icon">♧</span>Team</button>
+
     <div class="nav-label" style="margin-top:18px">PREFERENCES</div>
     <button class="nav-link" id="themeToggle"><span class="nav-icon">◐</span>Toggle theme</button>
     <button class="nav-link" id="helpBtn"><span class="nav-icon">?</span>Help & support</button>
-    <div class="workspace"><small>WORKSPACE USAGE</small><strong>68% used</strong><div class="progress"><span></span></div></div>
+
+    <div class="workspace">
+      <small>WORKSPACE USAGE</small>
+      <strong>68% used</strong>
+      <div class="progress"><span></span></div>
+    </div>
   </aside>
 
   <main>
     <header class="topbar">
       <div style="display:flex;align-items:center;gap:12px">
         <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
-        <span class="crumb">Workspace&nbsp; / &nbsp;<span id="crumbName">Overview</span></span>
+        <span class="crumb">Workspace / <span id="crumbName">Overview</span></span>
       </div>
+
       <div class="top-actions">
-        <input class="search" id="search" placeholder="⌕  Search dashboard..." aria-label="Search dashboard" />
+        <input class="search" id="search" placeholder="⌕ Search dashboard..." aria-label="Search dashboard" />
         <button class="icon-btn" id="notifyBtn" aria-label="Notifications">♧</button>
         <div class="avatar" title="Alex Morgan">AM</div>
       </div>
@@ -162,7 +405,7 @@
 
     <section class="heading">
       <div>
-        <h1 id="greeting">Good morning, Alex 👋</h1>
+        <h1 id="greeting">Welcome in, Alex 👋</h1>
         <div class="sub">Here’s what’s happening across your workspace.</div>
       </div>
       <select class="date-select" id="rangeSelect" aria-label="Select date range">
@@ -172,7 +415,7 @@
       </select>
     </section>
 
-    <div class="context-row" aria-label="Dashboard context">
+    <div class="context-row">
       <button class="context-chip active" data-context="Overview">✦ Overview</button>
       <button class="context-chip" data-context="My work">♙ My work</button>
       <button class="context-chip" data-context="Team">♧ Team</button>
@@ -183,195 +426,365 @@
     <section class="grid" id="dashboard">
       <article class="card metric searchable">
         <div class="card-head"><span class="metric-label">Total revenue</span><span class="metric-icon">$</span></div>
-        <div class="metric-value" data-base="$24,680">$24,680</div>
+        <div class="metric-value">$24,680</div>
         <div class="metric-foot"><span class="up">↗ 12.8%</span> vs. previous period</div>
       </article>
+
       <article class="card metric searchable">
         <div class="card-head"><span class="metric-label">Active projects</span><span class="metric-icon">▣</span></div>
-        <div class="metric-value" data-base="18">18</div>
+        <div class="metric-value">18</div>
         <div class="metric-foot"><span class="up">↗ 3</span> added this month</div>
       </article>
+
       <article class="card metric searchable">
         <div class="card-head"><span class="metric-label">Tasks completed</span><span class="metric-icon">✓</span></div>
-        <div class="metric-value" data-base="146">146</div>
+        <div class="metric-value">146</div>
         <div class="metric-foot"><span class="up">↗ 8.4%</span> vs. previous period</div>
       </article>
+
       <article class="card metric searchable">
         <div class="card-head"><span class="metric-label">Team efficiency</span><span class="metric-icon">⌁</span></div>
-        <div class="metric-value" data-base="92%">92%</div>
+        <div class="metric-value">92%</div>
         <div class="metric-foot"><span class="down">↘ 1.2%</span> vs. previous period</div>
       </article>
 
       <article class="card chart-card searchable">
-        <div class="card-head"><div><h2 class="card-title">Performance overview</h2><div class="card-caption">Revenue and completed tasks over time</div></div><span class="tag">Live data</span></div>
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">Performance overview</h2>
+            <div class="card-caption">Revenue and completed tasks over time</div>
+          </div>
+          <span class="tag">Workspace</span>
+        </div>
         <div class="chart-wrap"><canvas id="performanceChart"></canvas></div>
       </article>
 
       <article class="card activity-card searchable">
-        <div class="card-head"><div><h2 class="card-title">Recent activity</h2><div class="card-caption">Latest workspace updates</div></div><button class="icon-btn" id="activityBtn">•••</button></div>
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">Recent activity</h2>
+            <div class="card-caption">Latest workspace updates</div>
+          </div>
+          <button class="icon-btn" id="activityBtn" aria-label="Activity options">•••</button>
+        </div>
         <div class="activity-list">
-          <div class="activity"><span class="dot"></span><div class="activity-text"><strong>Website redesign approved</strong><small>Olivia Chen · 12 min ago</small></div></div>
-          <div class="activity"><span class="dot" style="background:#25a879"></span><div class="activity-text"><strong>Q3 report completed</strong><small>Marcus Lee · 48 min ago</small></div></div>
-          <div class="activity"><span class="dot" style="background:#e5a443"></span><div class="activity-text"><strong>New comment on Mobile App</strong><small>Jamie Park · 2 hours ago</small></div></div>
-          <div class="activity"><span class="dot" style="background:#e46b7a"></span><div class="activity-text"><strong>Campaign deadline updated</strong><small>You · 4 hours ago</small></div></div>
+          <div class="activity">
+            <span class="dot"></span>
+            <div class="activity-text"><strong>Website redesign approved</strong><small>Olivia Chen · 12 min ago</small></div>
+          </div>
+          <div class="activity">
+            <span class="dot" style="background:var(--green)"></span>
+            <div class="activity-text"><strong>Q3 report completed</strong><small>Marcus Lee · 48 min ago</small></div>
+          </div>
+          <div class="activity">
+            <span class="dot" style="background:#c59b56"></span>
+            <div class="activity-text"><strong>New comment on Mobile App</strong><small>Jamie Park · 2 hours ago</small></div>
+          </div>
+          <div class="activity">
+            <span class="dot" style="background:var(--red)"></span>
+            <div class="activity-text"><strong>Campaign deadline updated</strong><small>You · 4 hours ago</small></div>
+          </div>
         </div>
       </article>
 
       <article class="card wide-card searchable">
-        <div class="card-head"><div><h2 class="card-title">My tasks</h2><div class="card-caption"><span id="taskCount">2</span> tasks remaining</div></div><button class="icon-btn" id="addTask">＋ Add task</button></div>
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">My tasks</h2>
+            <div class="card-caption"><span id="taskCount">2</span> tasks remaining</div>
+          </div>
+          <button class="icon-btn" id="addTask">＋ Add task</button>
+        </div>
         <div class="task-list" id="taskList">
-          <label class="task"><input type="checkbox"><span class="task-text"><strong>Finalize homepage wireframes</strong><small>Due today · Design</small></span><span class="tag orange">High</span></label>
-          <label class="task"><input type="checkbox"><span class="task-text"><strong>Review Q3 campaign brief</strong><small>Due today · Marketing</small></span><span class="tag">Medium</span></label>
-          <label class="task"><input type="checkbox" checked><span class="task-text"><strong>Send project update to team</strong><small>Completed · Operations</small></span><span class="tag green">Done</span></label>
+          <label class="task">
+            <input type="checkbox" />
+            <span class="task-text"><strong>Finalize homepage wireframes</strong><small>Due today · Design</small></span>
+            <span class="tag orange">High</span>
+          </label>
+          <label class="task">
+            <input type="checkbox" />
+            <span class="task-text"><strong>Review Q3 campaign brief</strong><small>Due today · Marketing</small></span>
+            <span class="tag">Medium</span>
+          </label>
+          <label class="task done">
+            <input type="checkbox" checked />
+            <span class="task-text"><strong>Send project update to team</strong><small>Completed · Operations</small></span>
+            <span class="tag green">Done</span>
+          </label>
         </div>
       </article>
 
       <article class="card side-card searchable">
-        <div class="card-head"><div><h2 class="card-title">Project progress</h2><div class="card-caption">Your active projects</div></div><button class="icon-btn" id="projectsBtn">View all</button></div>
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">Project progress</h2>
+            <div class="card-caption">Your active projects</div>
+          </div>
+          <button class="icon-btn" id="projectsBtn">View all</button>
+        </div>
         <div class="project-list">
-          <div class="project"><span class="project-icon">🎨</span><div class="project-info"><strong>Website redesign</strong><small>Design · 8 of 10 tasks</small></div><div class="mini-progress"><span style="width:80%"></span></div></div>
-          <div class="project"><span class="project-icon">📱</span><div class="project-info"><strong>Mobile app launch</strong><small>Product · 5 of 12 tasks</small></div><div class="mini-progress"><span style="width:42%"></span></div></div>
-          <div class="project"><span class="project-icon">📈</span><div class="project-info"><strong>Q3 Growth campaign</strong><small>Marketing · 9 of 10 tasks</small></div><div class="mini-progress"><span style="width:90%"></span></div></div>
+          <div class="project">
+            <span class="project-icon">🎨</span>
+            <div class="project-info"><strong>Website redesign</strong><small>Design · 8 of 10 tasks</small></div>
+            <div class="mini-progress"><span style="width:80%"></span></div>
+          </div>
+          <div class="project">
+            <span class="project-icon">📱</span>
+            <div class="project-info"><strong>Mobile app launch</strong><small>Product · 5 of 12 tasks</small></div>
+            <div class="mini-progress"><span style="width:42%"></span></div>
+          </div>
+          <div class="project">
+            <span class="project-icon">📈</span>
+            <div class="project-info"><strong>Q3 Growth campaign</strong><small>Marketing · 9 of 10 tasks</small></div>
+            <div class="mini-progress"><span style="width:90%"></span></div>
+          </div>
         </div>
       </article>
     </section>
   </main>
-  <div class="toast" id="toast"></div>
-</div>
 
-<script>
-  const $ = (s) => document.querySelector(s);
-  const $$ = (s) => [...document.querySelectorAll(s)];
-  let toastTimer;
-  function toast(message) {
-    const el = $("#toast");
-    el.textContent = message;
-    el.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove("show"), 2300);
-  }
+  <div class="toast" id="toast" role="status"></div>
 
-  // Greeting based on the user's local time
-  const hour = new Date().getHours();
-  $("#greeting").textContent =
-    `${hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening"}, Alex 👋`;
+  <script>
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => [...document.querySelectorAll(selector)];
 
-  // Chart
-  const labelsByRange = {
-    7: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    30: ["Week 1", "Week 2", "Week 3", "Week 4"],
-    90: ["Month 1", "Month 2", "Month 3"]
-  };
-  const chart = new Chart($("#performanceChart"), {
-    type: "line",
-    data: {
-      labels: labelsByRange[7],
-      datasets: [
-        { label: "Revenue ($)", data: [32, 45, 38, 57, 50, 68, 74], borderColor: "#7057f5",
-          backgroundColor: "rgba(112,87,245,.10)", fill: true, tension: .4, pointRadius: 3, yAxisID: "y" },
-        { label: "Tasks", data: [18, 25, 22, 31, 27, 36, 42], borderColor: "#25a879",
-          backgroundColor: "transparent", tension: .4, pointRadius: 3, yAxisID: "y1" }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      plugins: { legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, color: "#85899d" } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: "#85899d" } },
-        y: { beginAtZero: true, grid: { color: "rgba(130,130,150,.12)" }, ticks: { color: "#85899d" } },
-        y1: { beginAtZero: true, position: "right", grid: { drawOnChartArea: false }, ticks: { color: "#85899d" } }
-      }
+    let toastTimer;
+
+    function toast(message) {
+      const el = $("#toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
     }
-  });
 
-  $("#rangeSelect").addEventListener("change", (e) => {
-    const days = e.target.value;
-    chart.data.labels = labelsByRange[days];
-    chart.data.datasets[0].data = days === "7" ? [32,45,38,57,50,68,74]
-      : days === "30" ? [155,188,170,235] : [530,620,590];
-    chart.data.datasets[1].data = days === "7" ? [18,25,22,31,27,36,42]
-      : days === "30" ? [88,105,96,126] : [280,330,310];
-    chart.update();
-    toast(`Showing the last ${days} days`);
-  });
+    // Greeting changes to match the local time.
+    const hour = new Date().getHours();
+    $("#greeting").textContent =
+      `${hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening"}, Alex 👋`;
 
-  // Sidebar navigation
-  $$(".nav-link[data-section]").forEach(btn => btn.addEventListener("click", () => {
-    $$(".nav-link[data-section]").forEach(x => x.classList.remove("active"));
-    btn.classList.add("active");
-    $("#crumbName").textContent = btn.dataset.section;
-    $("#sidebar").classList.remove("open");
-    toast(`${btn.dataset.section} selected`);
-  }));
+    // Chart setup.
+    const chartLabels = {
+      7: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      30: ["Week 1", "Week 2", "Week 3", "Week 4"],
+      90: ["Month 1", "Month 2", "Month 3"]
+    };
 
-  // Context chips update the dashboard heading and filters
-  $$(".context-chip").forEach(btn => btn.addEventListener("click", () => {
-    $$(".context-chip").forEach(x => x.classList.remove("active"));
-    btn.classList.add("active");
-    const context = btn.dataset.context;
-    $("#crumbName").textContent = context;
-    $$(".searchable").forEach(card => {
-      card.style.display = context === "My work" && card.classList.contains("activity-card") ? "none" : "";
+    let chart = null;
+
+    if (window.Chart) {
+      chart = new Chart($("#performanceChart"), {
+        type: "line",
+        data: {
+          labels: chartLabels[7],
+          datasets: [
+            {
+              label: "Revenue",
+              data: [32, 45, 38, 57, 50, 68, 74],
+              borderColor: "#aaa13e",
+              backgroundColor: "rgba(213,199,89,.16)",
+              fill: true,
+              tension: .4,
+              pointRadius: 3,
+              yAxisID: "y"
+            },
+            {
+              label: "Tasks",
+              data: [18, 25, 22, 31, 27, 36, 42],
+              borderColor: "#728a6b",
+              backgroundColor: "transparent",
+              tension: .4,
+              pointRadius: 3,
+              yAxisID: "y1"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { usePointStyle: true, boxWidth: 7, color: "#85847b" }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: "#85847b" } },
+            y: {
+              beginAtZero: true,
+              grid: { color: "rgba(130,130,120,.12)" },
+              ticks: { color: "#85847b" }
+            },
+            y1: {
+              beginAtZero: true,
+              position: "right",
+              grid: { drawOnChartArea: false },
+              ticks: { color: "#85847b" }
+            }
+          }
+        }
+      });
+    }
+
+    $("#rangeSelect").addEventListener("change", (event) => {
+      if (!chart) return;
+
+      const range = event.target.value;
+      chart.data.labels = chartLabels[range];
+      chart.data.datasets[0].data =
+        range === "7" ? [32, 45, 38, 57, 50, 68, 74] :
+        range === "30" ? [155, 188, 170, 235] : [530, 620, 590];
+      chart.data.datasets[1].data =
+        range === "7" ? [18, 25, 22, 31, 27, 36, 42] :
+        range === "30" ? [88, 105, 96, 126] : [280, 330, 310];
+
+      chart.update();
+      toast(`Showing the last ${range} days`);
     });
-    toast(`Context changed to ${context}`);
-  }));
 
-  // Search dashboard cards and list entries
-  $("#search").addEventListener("input", (e) => {
-    const query = e.target.value.trim().toLowerCase();
-    $$(".searchable").forEach(card => {
-      card.style.display = !query || card.innerText.toLowerCase().includes(query) ? "" : "none";
+    // Sidebar sections: each section displays its matching dashboard cards.
+    const sectionViews = {
+      Overview: [".metric", ".chart-card", ".activity-card", ".wide-card", ".side-card"],
+      Analytics: [".metric", ".chart-card"],
+      Projects: [".side-card"],
+      Tasks: [".wide-card"],
+      Team: [".activity-card"]
+    };
+
+    function showCards(selectors) {
+      $$(".searchable").forEach(card => {
+        card.style.display = selectors.some(selector => card.matches(selector)) ? "" : "none";
+      });
+    }
+
+    function showSection(section) {
+      $("#search").value = "";
+      showCards(sectionViews[section] || sectionViews.Overview);
+
+      $$(".nav-link[data-section]").forEach(button => {
+        button.classList.toggle("active", button.dataset.section === section);
+      });
+
+      $$(".context-chip").forEach(button => button.classList.remove("active"));
+      $("#crumbName").textContent = section;
+      $("#sidebar").classList.remove("open");
+    }
+
+    $$(".nav-link[data-section]").forEach(button => {
+      button.addEventListener("click", () => showSection(button.dataset.section));
     });
-  });
 
-  // Mark tasks complete; add task through the button
-  function updateTaskCount() {
-    const tasks = $$("#taskList .task");
-    const remaining = tasks.filter(task => !task.querySelector("input").checked).length;
-    $("#taskCount").textContent = remaining;
-  }
-  $("#taskList").addEventListener("change", (e) => {
-    if (e.target.matches("input[type=checkbox]")) {
-      e.target.closest(".task").classList.toggle("done", e.target.checked);
-      const tag = e.target.closest(".task").querySelector(".tag");
-      if (tag) {
-        tag.textContent = e.target.checked ? "Done" : "In progress";
-        tag.className = `tag ${e.target.checked ? "green" : ""}`;
-      }
+    // Context filters.
+    const contextViews = {
+      "Overview": sectionViews.Overview,
+      "My work": [".metric", ".chart-card", ".wide-card"],
+      "Team": [".metric", ".activity-card"],
+      "Projects": [".metric", ".side-card"],
+      "This week": [".metric", ".chart-card", ".wide-card"]
+    };
+
+    $$(".context-chip").forEach(button => {
+      button.addEventListener("click", () => {
+        const context = button.dataset.context;
+        $("#search").value = "";
+        showCards(contextViews[context] || sectionViews.Overview);
+
+        $$(".context-chip").forEach(chip => chip.classList.remove("active"));
+        button.classList.add("active");
+        $$(".nav-link[data-section]").forEach(link => link.classList.remove("active"));
+        $("#crumbName").textContent = context;
+      });
+    });
+
+    // Search through cards currently on the dashboard.
+    $("#search").addEventListener("input", (event) => {
+      const query = event.target.value.trim().toLowerCase();
+
+      $$(".searchable").forEach(card => {
+        const matches = card.innerText.toLowerCase().includes(query);
+        card.style.display = matches ? "" : "none";
+      });
+    });
+
+    // Task completion and counts.
+    function updateTaskCount() {
+      const tasks = $$("#taskList .task");
+      const remaining = tasks.filter(task => !task.querySelector("input").checked).length;
+      $("#taskCount").textContent = remaining;
+      $("#taskBadge").textContent = remaining;
+    }
+
+    $("#taskList").addEventListener("change", (event) => {
+      if (!event.target.matches('input[type="checkbox"]')) return;
+
+      const task = event.target.closest(".task");
+      const isDone = event.target.checked;
+      task.classList.toggle("done", isDone);
+
+      const tag = task.querySelector(".tag");
+      tag.textContent = isDone ? "Done" : "In progress";
+      tag.className = `tag ${isDone ? "green" : ""}`;
+
       updateTaskCount();
-      toast(e.target.checked ? "Task completed ✓" : "Task reopened");
+      toast(isDone ? "Task completed ✓" : "Task reopened");
+    });
+
+    // Add a new task.
+    $("#addTask").addEventListener("click", () => {
+      const name = prompt("Enter a task name:");
+      if (!name || !name.trim()) return;
+
+      const task = document.createElement("label");
+      task.className = "task";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+
+      const text = document.createElement("span");
+      text.className = "task-text";
+
+      const title = document.createElement("strong");
+      title.textContent = name.trim();
+
+      const detail = document.createElement("small");
+      detail.textContent = "Added just now · General";
+
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = "New";
+
+      text.append(title, detail);
+      task.append(checkbox, text, tag);
+      $("#taskList").prepend(task);
+
+      updateTaskCount();
+      toast("Task added");
+    });
+
+    // Persistent light/dark theme.
+    if (localStorage.getItem("crextio-theme") === "dark") {
+      document.body.classList.add("dark");
     }
-  });
-  $("#addTask").addEventListener("click", () => {
-    const name = prompt("Enter a task name:");
-    if (!name || !name.trim()) return;
-    const task = document.createElement("label");
-    task.className = "task";
-    task.innerHTML = `<input type="checkbox"><span class="task-text"><strong></strong><small>Added just now · General</small></span><span class="tag">New</span>`;
-    task.querySelector("strong").textContent = name.trim();
-    $("#taskList").prepend(task);
+
+    $("#themeToggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem(
+        "crextio-theme",
+        document.body.classList.contains("dark") ? "dark" : "light"
+      );
+      toast(document.body.classList.contains("dark") ? "Dark mode enabled" : "Light mode enabled");
+    });
+
+    // Other controls.
+    $("#notifyBtn").addEventListener("click", () => toast("You’re all caught up!"));
+    $("#helpBtn").addEventListener("click", () => toast("Help & support selected"));
+    $("#activityBtn").addEventListener("click", () => toast("Showing recent activity"));
+    $("#projectsBtn").addEventListener("click", () => showSection("Projects"));
+    $("#menuBtn").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
+
     updateTaskCount();
-    toast("Task added");
-  });
-
-  // Theme toggle persists locally
-  if (localStorage.getItem("context-theme") === "dark") document.body.classList.add("dark");
-  $("#themeToggle").addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("context-theme", document.body.classList.contains("dark") ? "dark" : "light");
-    toast(document.body.classList.contains("dark") ? "Dark mode enabled" : "Light mode enabled");
-  });
-
-  $("#notifyBtn").addEventListener("click", () => toast("You’re all caught up!"));
-  $("#helpBtn").addEventListener("click", () => toast("Help center opened"));
-  $("#activityBtn").addEventListener("click", () => toast("Showing recent activity"));
-  $("#projectsBtn").addEventListener("click", () => {
-    $("#crumbName").textContent = "Projects";
-    toast("Project overview selected");
-  });
-  $("#menuBtn").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
-  updateTaskCount();
-</script>
+  </script>
 </body>
 </html>
